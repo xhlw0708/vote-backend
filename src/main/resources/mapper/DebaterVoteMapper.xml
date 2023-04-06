@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.lsnu.vote.mapper.DebaterVoteMapper">
+
+    <resultMap id="BaseResultMap" type="cn.lsnu.vote.model.domain.DebaterVote">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="debateRight" column="debate_right" jdbcType="BIGINT"/>
+            <result property="debateLeft" column="debate_left" jdbcType="BIGINT"/>
+            <result property="remainTime" column="remain_time" jdbcType="INTEGER"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,debate_right,debate_left,
+        remain_time,create_time,update_time
+    </sql>
+</mapper>
