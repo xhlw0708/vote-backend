@@ -21,13 +21,32 @@ public class DebateVoteController {
 
     private final DebateVoteService debateVoteService;
 
+    // 根据id删除投票纪录
+    @DeleteMapping("/{id}")
+    public Result<String> deleteDebateVoteById(@PathVariable("id") Long id){
+        if (ObjectUtil.isNull(id))
+            throw new CustomerException(Constants.ERROR_PARAM,"参数不合法");
+        return Result.success(debateVoteService.removeByDebateVoteId(id));
+    }
+
+
+    // 根据voteParentVersion,voteChildrenVersion查询DebateVoteDTO
+    @GetMapping("/{voteParentVersion}/{voteChildrenVersion}")
+    public Result<DebateVoteDTO> debateVoteDTOByVersion(
+            @PathVariable("voteParentVersion") Long voteParentVersion, @PathVariable("voteChildrenVersion") Long voteChildrenVersion){
+        if (ObjectUtil.isNull(voteParentVersion) || ObjectUtil.isNull(voteChildrenVersion))
+            throw new CustomerException(Constants.ERROR_PARAM,"参数不合法");
+        return Result.success(debateVoteService.searchDebateVoteDTOByVersion(voteParentVersion, voteChildrenVersion));
+    }
+
+
     // 查询所有投票记录
     @GetMapping
     public Result<List<DebateVoteDTO>> debateVoteDTOList(){
         return Result.success(debateVoteService.searchDebateVoteDTOList());
     }
 
-    // 保存辩论投票记录
+    // 根据id查询辩论投票
     @GetMapping("/{id}")
     public Result<DebateVoteDTO> getDebateVoteById(@PathVariable("id") Long id){
         return Result.success(debateVoteService.searchDebateVoteById(id));

@@ -40,6 +40,18 @@ public class DebaterVote implements Serializable {
     @TableField(value = "remain_time")
     private Integer remainTime;
 
+    /**
+     * 第几轮辩论赛
+     */
+    @TableField(value = "vote_parent_version")
+    private Integer voteParentVersion;
+
+    /**
+     * 第几轮辩论赛下的每小轮
+     */
+    @TableField(value = "vote_children_version")
+    private Integer voteChildrenVersion;
+
 
     /**
      * 创建时间
@@ -52,6 +64,12 @@ public class DebaterVote implements Serializable {
      */
     @TableField(value = "update_time")
     private Date updateTime;
+
+    /**
+     * 创建人-用户id
+     */
+    @TableField(value = "create_by")
+    private Long createBy;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

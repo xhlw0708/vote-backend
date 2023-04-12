@@ -19,4 +19,6 @@
     <select id="selectGroupList" resultMap="BaseResultMap">
         select <include refid="Base_Column_List"></include> from debate_group
     </select>
+
+
 </mapper>

@@ -10,4 +10,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface DebaterVoteUserService extends IService<DebaterVoteUser> {
 
+    // 保存debaterVoteUser
+    DebaterVoteUser saveDebaterVoteUser(DebaterVoteUser debateVoterUser);
 }

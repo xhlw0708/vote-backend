@@ -1,9 +1,14 @@
 package cn.lsnu.vote;
 
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSONUtil;
+import cn.lsnu.vote.common.RedisConstants;
 import cn.lsnu.vote.mapper.DebateGroupMapper;
 import cn.lsnu.vote.mapper.DebateVoteMapper;
 import cn.lsnu.vote.model.domain.DebateVote;
 import cn.lsnu.vote.model.domain.User;
+import cn.lsnu.vote.model.wechat.WeChatLoginUser;
 import cn.lsnu.vote.service.DebateGroupService;
 import cn.lsnu.vote.service.UserService;
 import org.junit.jupiter.api.Test;
@@ -24,6 +29,27 @@ class VoteBackendApplicationTests {
     private DebateGroupService groupService;
     @Resource
     private DebateVoteMapper debateVoteMapper;
+
+
+    @Test
+    void RedisConstantsTest(){
+        System.out.println(RedisConstants.USER_KEY);
+    }
+
+    @Test
+    void weixinLogin(){
+        // 91933c3a22369f8f1fb6ade8fb66e160
+        // openid：oSPjK4pfPfqeKttYWg7gPrc48ySk
+        HttpResponse response = HttpRequest.get("https://api.weixin.qq.com/sns/jscode2session" +
+                        "?appid=wxda9bed06c4087d2e" +
+                        "&secret=91933c3a22369f8f1fb6ade8fb66e160" +
+                        "&js_code=0f3yH2000HYpLP1Flx200dazHT0yH20M" +
+                        "&grant_type=authorization_code")
+                .execute();
+        String body = response.body();
+        WeChatLoginUser weChatLoginUser = JSONUtil.toBean(body, WeChatLoginUser.class);
+        System.out.println(weChatLoginUser);
+    }
 
     @Test
     void addUserTest(){

@@ -19,4 +19,19 @@
         phone,group_id,create_time,
         update_time
     </sql>
+
+    <update id="removeGroupIdByUserId" parameterType="list">
+        update user set group_id = 0
+        <where>
+            id in
+            <foreach collection="list" separator="," open="(" close=")" item="userId">
+                #{userId}
+            </foreach>
+        </where>
+    </update>
+
+    <update id="removeGroupIdById" parameterType="long">
+        update user set group_id = 0 where id = #{id}
+    </update>
+
 </mapper>

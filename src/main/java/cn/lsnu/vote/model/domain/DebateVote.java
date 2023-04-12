@@ -71,6 +71,12 @@ public class DebateVote implements Serializable {
     @TableField(value = "update_time")
     private Date updateTime;
 
+    /**
+     * 创建人-用户id
+     */
+    @TableField(value = "create_by")
+    private Long createBy;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

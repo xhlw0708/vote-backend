@@ -13,10 +13,23 @@
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
     </resultMap>
+    <resultMap id="groupVoteMap" type="cn.lsnu.vote.model.GroupVote">
+        <result property="countVote" column="count_vote" jdbcType="INTEGER"/>
+        <result property="groupId" column="group_id" jdbcType="BIGINT"/>
+    </resultMap>
 
     <sql id="Base_Column_List">
         id,title,debate_right,
         debate_left,remain_time,create_time,
         update_time
     </sql>
+
+    <select id="selectGroupVoteByVersion" resultMap="groupVoteMap">
+        SELECT COUNT(*) as count_vote,group_id
+        from debate_vote_user
+        where vote_parent_version = #{voteParentVersion}
+          and vote_children_version = #{voteChildrenVersion}
+          and debate_vote_id = #{debateVoteId}
+        GROUP BY group_id
+    </select>
 </mapper>

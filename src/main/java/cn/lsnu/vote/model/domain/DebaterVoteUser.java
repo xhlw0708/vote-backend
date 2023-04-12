@@ -4,9 +4,10 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * 辩手-用户投票记录表
@@ -38,6 +39,18 @@ public class DebaterVoteUser implements Serializable {
      */
     @TableField(value = "debater_id")
     private Long debaterId;
+
+    /**
+     * 第几轮辩论赛
+     */
+    @TableField(value = "vote_parent_version")
+    private Integer voteParentVersion;
+
+    /**
+     * 第几轮辩论赛下的每小轮
+     */
+    @TableField(value = "vote_children_version")
+    private Integer voteChildrenVersion;
 
     /**
      * 创建时间
