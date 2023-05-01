@@ -1,18 +1,19 @@
 package cn.lsnu.vote.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.lsnu.vote.common.Constants;
 import cn.lsnu.vote.exception.CustomerException;
 import cn.lsnu.vote.mapper.DebateVoteUserMapper;
 import cn.lsnu.vote.model.domain.DebateVoteUser;
+import cn.lsnu.vote.service.DebateVoteService;
 import cn.lsnu.vote.service.DebateVoteUserService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * @author LindaMan
@@ -25,6 +26,7 @@ public class DebateVoteUserServiceImpl extends ServiceImpl<DebateVoteUserMapper,
         implements DebateVoteUserService {
 
     private final DebateVoteUserMapper debateVoteUserMapper;
+    private final DebateVoteService debateVoteService;
 
     /**
      * 保存debateVoteUser
@@ -38,34 +40,60 @@ public class DebateVoteUserServiceImpl extends ServiceImpl<DebateVoteUserMapper,
         if (ObjectUtil.isNull(debateVoteUser))
             throw new CustomerException(Constants.ERROR_PARAM, "无效参数");
 
+        // 先判断投票状态
+        Integer status = debateVoteService.searchDebateVoteStatus(debateVoteUser.getDebateVoteId());
+        debateVoteUser.setDebateVoteStatus(status);
+        if (status == 0){
+            return debateVoteUser;
+        }
+
         // 获取当前轮次
         Integer voteParentVersion = debateVoteUser.getVoteParentVersion();
         Integer voteChildrenVersion = debateVoteUser.getVoteChildrenVersion();
 
-
-        // 判断参数有无id
-        // 对debateVote进行判断是否有id
-        if (ObjectUtil.isNotNull(debateVoteUser.getId())) {
-            // 有id，表示当前用户是已经具备投票的条件的
-            // 判断userId是否存在
-            List<DebateVoteUser> debateVoteUserList = debateVoteUserMapper.selectList(Wrappers.lambdaQuery(DebateVoteUser.class)
-                    .eq(DebateVoteUser::getUserId, debateVoteUser.getUserId()));
-            if (debateVoteUserList != null && debateVoteUserList.size() > 0) {
-                // 存在，修改数据
-                LambdaUpdateWrapper<DebateVoteUser> updateWrapper = Wrappers.lambdaUpdate(DebateVoteUser.class)
-                        .eq(DebateVoteUser::getDebateVoteId, debateVoteUser.getDebateVoteId())
-                        .eq(DebateVoteUser::getUserId, debateVoteUser.getUserId());
-                debateVoteUserMapper.update(debateVoteUser, updateWrapper);
-            } else {
-                // 不存在，新增数据
-                insertDebateVoteUser(debateVoteUser, voteParentVersion, voteChildrenVersion);
-            }
-        } else {
-            // 无id，新增数据
+        // 判断当前用户是否在当前场次和轮次投过票了
+        LambdaQueryWrapper<DebateVoteUser> eq = Wrappers.lambdaQuery(DebateVoteUser.class)
+                .eq(DebateVoteUser::getDebateVoteId, debateVoteUser.getDebateVoteId())
+                .eq(DebateVoteUser::getUserId, debateVoteUser.getUserId())
+                .eq(DebateVoteUser::getVoteParentVersion, debateVoteUser.getVoteParentVersion())
+                .eq(DebateVoteUser::getVoteChildrenVersion, debateVoteUser.getVoteChildrenVersion());
+        DebateVoteUser debateVoteUser1 = debateVoteUserMapper.selectOne(eq);
+        if (BeanUtil.isNotEmpty(debateVoteUser1)){
+            // 不为空，表示已经投过票了，只需更新即可
+            LambdaUpdateWrapper<DebateVoteUser> updateWrapper = Wrappers.lambdaUpdate(DebateVoteUser.class)
+                    .eq(DebateVoteUser::getDebateVoteId, debateVoteUser.getDebateVoteId())
+                    .eq(DebateVoteUser::getUserId, debateVoteUser.getUserId())
+                    .eq(DebateVoteUser::getVoteParentVersion, debateVoteUser.getVoteParentVersion())
+                    .eq(DebateVoteUser::getVoteChildrenVersion, debateVoteUser.getVoteChildrenVersion());
+            debateVoteUserMapper.update(debateVoteUser,updateWrapper);
+        }else {
+            // 不存在，新增数据
             insertDebateVoteUser(debateVoteUser, voteParentVersion, voteChildrenVersion);
         }
         // 返回当前debateVote的id
         return debateVoteUser;
+
+//        // 判断参数有无id
+//        // 对debateVote进行判断是否有id
+//        if (ObjectUtil.isNotNull(debateVoteUser.getId())) {
+//            // 有id，表示当前用户是已经具备投票的条件的
+//            // 判断userId是否存在
+//            List<DebateVoteUser> debateVoteUserList = debateVoteUserMapper.selectList(Wrappers.lambdaQuery(DebateVoteUser.class)
+//                    .eq(DebateVoteUser::getUserId, debateVoteUser.getUserId()));
+//            if (debateVoteUserList != null && debateVoteUserList.size() > 0) {
+//                // 存在，修改数据
+//                LambdaUpdateWrapper<DebateVoteUser> updateWrapper = Wrappers.lambdaUpdate(DebateVoteUser.class)
+//                        .eq(DebateVoteUser::getDebateVoteId, debateVoteUser.getDebateVoteId())
+//                        .eq(DebateVoteUser::getUserId, debateVoteUser.getUserId());
+//                debateVoteUserMapper.update(debateVoteUser, updateWrapper);
+//            } else {
+//                // 不存在，新增数据
+//                insertDebateVoteUser(debateVoteUser, voteParentVersion, voteChildrenVersion);
+//            }
+//        } else {
+//            // 无id，新增数据
+//            insertDebateVoteUser(debateVoteUser, voteParentVersion, voteChildrenVersion);
+//        }
     }
 
     private void insertDebateVoteUser(DebateVoteUser debateVoteUser, Integer voteParentVersion, Integer voteChildrenVersion) {

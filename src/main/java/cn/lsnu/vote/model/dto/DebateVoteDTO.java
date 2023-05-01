@@ -18,4 +18,5 @@ public class DebateVoteDTO extends DebateVote {
 
     // 该投票记录的左方票数信息
     private List<DebateVoteUser> DebateVoteUserLeft;
+
 }

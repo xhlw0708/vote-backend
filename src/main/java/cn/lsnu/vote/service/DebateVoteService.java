@@ -27,4 +27,13 @@ public interface DebateVoteService extends IService<DebateVote> {
 
     // 根据id删除投票纪录
     String removeByDebateVoteId(Long debateVoteId);
+
+    // 根据场次查询所有投票信息
+    List<DebateVoteDTO> searchDebateVoteDTOListByParentVersion(Integer voteParentVersion);
+
+    // 查询投票状态
+    Integer searchDebateVoteStatus(Long id);
+
+    // 改变状态
+    String changeStatus(Long id);
 }

@@ -9,10 +9,7 @@ import cn.lsnu.vote.mapper.DebaterVoteMapper;
 import cn.lsnu.vote.mapper.DebaterVoteUserMapper;
 import cn.lsnu.vote.mapper.UserMapper;
 import cn.lsnu.vote.model.UserVote;
-import cn.lsnu.vote.model.domain.DebateGroup;
-import cn.lsnu.vote.model.domain.DebaterVote;
-import cn.lsnu.vote.model.domain.DebaterVoteUser;
-import cn.lsnu.vote.model.domain.User;
+import cn.lsnu.vote.model.domain.*;
 import cn.lsnu.vote.model.dto.DebaterVoteDTO;
 import cn.lsnu.vote.model.dto.UserDTO;
 import cn.lsnu.vote.service.DebaterVoteService;
@@ -43,6 +40,32 @@ public class DebaterVoteServiceImpl extends ServiceImpl<DebaterVoteMapper, Debat
     private final DebateGroupMapper debateGroupMapper;
     private final DebaterVoteUserMapper debaterVoteUserMapper;
 
+
+    /**
+     * 改变状态
+     * @param id 辩论id
+     * @return 提示信息
+     */
+    @Transactional
+    @Override
+    public String changeStatus(Long id) {
+        if (BeanUtil.isEmpty(id))
+            throw new CustomerException(Constants.ERROR_PARAM,"参数不合法");
+        DebaterVote debaterVote = debaterVoteMapper.selectById(id);
+        if (BeanUtil.isEmpty(debaterVote))
+            throw new CustomerException(Constants.ERROR_SYSTEM,"暂无投票信息");
+        if (debaterVote.getStatus() == 1){
+            debaterVote.setStatus(0);
+        }else {
+            debaterVote.setStatus(1);
+        }
+        try {
+            debaterVoteMapper.updateById(debaterVote);
+        } catch (Exception e) {
+            throw new CustomerException(Constants.ERROR_SYSTEM,"操作失败，请稍后再试");
+        }
+        return "操作成功";
+    }
 
     /**
      * 根据voteParentVersion,voteChildrenVersion查询DebateVoteDTO

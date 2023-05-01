@@ -22,9 +22,9 @@ public class DebaterVoteUserController {
 
     // 保存debaterVoteUser
     @PostMapping
-    public Result<DebaterVoteUser> saveDebateVoteUsers(@RequestBody DebaterVoteUser debateVoterUser){
-        if (ObjectUtil.isNull(debateVoterUser))
+    public Result<DebaterVoteUser> saveDebateVoteUsers(@RequestBody DebaterVoteUser debaterVoteUser){
+        if (ObjectUtil.isNull(debaterVoteUser))
             throw new CustomerException(Constants.ERROR_PARAM,"参数不合法");
-        return Result.success(debaterVoteUserService.saveDebaterVoteUser(debateVoterUser));
+        return Result.success(debaterVoteUserService.saveDebaterVoteUser(debaterVoteUser));
     }
 }

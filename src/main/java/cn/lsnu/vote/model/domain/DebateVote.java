@@ -60,6 +60,12 @@ public class DebateVote implements Serializable {
     private Integer voteChildrenVersion;
 
     /**
+     * 状态
+     */
+    @TableField(value = "status")
+    private Integer status;
+
+    /**
      * 创建时间
      */
     @TableField(value = "create_time")

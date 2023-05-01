@@ -16,6 +16,13 @@ import java.util.Date;
 @TableName(value ="debater_vote_user")
 @Data
 public class DebaterVoteUser implements Serializable {
+
+    /**
+     * 投票状态
+     */
+    @TableField(exist = false)
+    private Integer debaterVoteStatus;
+
     /**
      * id
      */

@@ -41,6 +41,72 @@ public class DebateVoteServiceImpl extends ServiceImpl<DebateVoteMapper, DebateV
 
 
     /**
+     * 改变状态
+     * @param id 辩论id
+     * @return 提示信息
+     */
+    @Transactional
+    @Override
+    public String changeStatus(Long id) {
+        if (BeanUtil.isEmpty(id))
+            throw new CustomerException(Constants.ERROR_PARAM,"参数不合法");
+        DebateVote debateVote = debateVoteMapper.selectById(id);
+        if (BeanUtil.isEmpty(debateVote))
+            throw new CustomerException(Constants.ERROR_SYSTEM,"暂无投票信息");
+        if (debateVote.getStatus() == 1){
+            debateVote.setStatus(0);
+        }else {
+            debateVote.setStatus(1);
+        }
+        try {
+            debateVoteMapper.updateById(debateVote);
+        } catch (Exception e) {
+            throw new CustomerException(Constants.ERROR_SYSTEM,"操作失败，请稍后再试");
+        }
+        return "操作成功";
+    }
+
+    /**
+     * 查询投票状态
+     * @param id debateVoteId
+     * @return 提示信息
+     */
+    @Override
+    public Integer searchDebateVoteStatus(Long id) {
+        if (BeanUtil.isEmpty(id))
+            throw new CustomerException(Constants.ERROR_PARAM,"参数不合法");
+        DebateVote debateVote = debateVoteMapper.selectById(id);
+        if (BeanUtil.isEmpty(debateVote)){
+            throw new CustomerException(Constants.ERROR_PARAM,"暂无该投票信息");
+        }
+
+        return debateVote.getStatus();
+    }
+
+    /**
+     * 根据场次查询所有投票信息
+     * @param voteParentVersion 投票场次
+     * @return List<DebateVoteDTO>
+     */
+    @Override
+    public List<DebateVoteDTO> searchDebateVoteDTOListByParentVersion(Integer voteParentVersion) {
+        // 校验参数是否合法
+        if (ObjectUtil.isNull(voteParentVersion))
+            throw new CustomerException(Constants.ERROR_PARAM,"参数不合法");
+
+        // 封装查询条件
+        LambdaQueryWrapper<DebateVote> eq = Wrappers.lambdaQuery(DebateVote.class).eq(DebateVote::getVoteParentVersion, voteParentVersion);
+
+        // 查询
+        List<DebateVote> debateVoteList = Optional.ofNullable(debateVoteMapper.selectList(eq)).orElse(new ArrayList<>());
+
+        // 转换DTO
+        List<DebateVoteDTO> debateVoteDTOList = debateVoteList.stream().map(v -> getDebateVoteDTO(v)).collect(Collectors.toList());
+
+        return debateVoteDTOList;
+    }
+
+    /**
      * 根据id删除投票纪录
      * @param debateVoteId 辩论投票id
      * @return 提示信息

@@ -22,4 +22,7 @@ public interface DebaterVoteService extends IService<DebaterVote> {
 
     // 根据voteParentVersion,voteChildrenVersion查询DebateVoteDTO
     DebaterVoteDTO searchDebaterVoteDTOByVersion(Long voteParentVersion, Long voteChildrenVersion);
+
+    // 改变状态
+    String changeStatus(Long id);
 }

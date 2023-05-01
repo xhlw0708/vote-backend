@@ -7,14 +7,17 @@ import cn.lsnu.vote.common.RedisConstants;
 import cn.lsnu.vote.mapper.DebateGroupMapper;
 import cn.lsnu.vote.mapper.DebateVoteMapper;
 import cn.lsnu.vote.model.domain.DebateVote;
+import cn.lsnu.vote.model.domain.DebateVoteUser;
 import cn.lsnu.vote.model.domain.User;
 import cn.lsnu.vote.model.wechat.WeChatLoginUser;
 import cn.lsnu.vote.service.DebateGroupService;
+import cn.lsnu.vote.service.DebateVoteUserService;
 import cn.lsnu.vote.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -29,7 +32,38 @@ class VoteBackendApplicationTests {
     private DebateGroupService groupService;
     @Resource
     private DebateVoteMapper debateVoteMapper;
+    @Resource
+    private DebateVoteUserService debateVoteUserService;
 
+
+    @Test
+    void debatingTest() throws InterruptedException {
+        List<Long> userIdList = new ArrayList<>();
+        for (long i = 1000; i < 1108; i++) {
+            userIdList.add(i);
+        }
+        Long debateVoteId = 218L;
+
+        for (Long userId : userIdList) {
+            DebateVoteUser debateVoteUser = new DebateVoteUser();
+            debateVoteUser.setDebateVoteId(debateVoteId);
+            debateVoteUser.setUserId(userId);
+
+            // groupId 22 23
+            if(userId % 2 == 0){
+                debateVoteUser.setGroupId(22L);
+            }else {
+                debateVoteUser.setGroupId(23L);
+            }
+
+            debateVoteUser.setVoteParentVersion(3);
+            debateVoteUser.setVoteChildrenVersion(2);
+
+            debateVoteUserService.save(debateVoteUser);
+            Thread.sleep(100);
+        }
+
+    }
 
     @Test
     void RedisConstantsTest(){

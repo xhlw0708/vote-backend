@@ -11,14 +11,14 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/vote?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://43.138.194.150:3306/vote?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
     username: root
     password: Liaowei123@
 #    password: 123456
     type: com.alibaba.druid.pool.DruidDataSource
   redis:
     database: 3
-    host: localhost
+    host: 43.138.194.150
     port: 6379
     password: 123456
     timeout: 10000 # 超时链接 单位ms

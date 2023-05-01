@@ -1,5 +1,6 @@
 package cn.lsnu.vote.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.lsnu.vote.common.Constants;
 import cn.lsnu.vote.common.Result;
@@ -20,6 +21,32 @@ import java.util.List;
 public class DebateVoteController {
 
     private final DebateVoteService debateVoteService;
+
+    // 改变状态
+    @GetMapping("changeStatus/{id}")
+    public Result<String> changeStatus(@PathVariable Long id){
+        if (BeanUtil.isEmpty(id))
+            throw new CustomerException(Constants.ERROR_PARAM,"参数不合法");
+        return Result.success(debateVoteService.changeStatus(id));
+    }
+
+
+    // 查询投票状态
+    @GetMapping("status/{id}")
+    public Result<Integer> debateVoteStatus(@PathVariable Long id){
+        if (BeanUtil.isEmpty(id))
+            throw new CustomerException(Constants.ERROR_PARAM,"参数不合法");
+        return Result.success(debateVoteService.searchDebateVoteStatus(id));
+    }
+
+    // 根据场次查询所有投票信息
+    @GetMapping("debateVoteList/{voteParentVersion}")
+    public Result<List<DebateVoteDTO>> debateVoteDTOListByParentVersion(@PathVariable("voteParentVersion") Integer voteParentVersion){
+        if (ObjectUtil.isNull(voteParentVersion))
+            throw new CustomerException(Constants.ERROR_PARAM,"参数不合法");
+        return Result.success(debateVoteService.searchDebateVoteDTOListByParentVersion(voteParentVersion));
+    }
+
 
     // 根据id删除投票纪录
     @DeleteMapping("/{id}")

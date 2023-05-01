@@ -1,5 +1,6 @@
 package cn.lsnu.vote.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.lsnu.vote.common.Constants;
 import cn.lsnu.vote.common.Result;
@@ -15,6 +16,14 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class DebaterVoteController {
     private final DebaterVoteService debaterVoteService;
+
+    // 改变状态
+    @GetMapping("changeStatus/{id}")
+    public Result<String> changeStatus(@PathVariable Long id){
+        if (BeanUtil.isEmpty(id))
+            throw new CustomerException(Constants.ERROR_PARAM,"参数不合法");
+        return Result.success(debaterVoteService.changeStatus(id));
+    }
 
 
     // 根据voteParentVersion,voteChildrenVersion查询DebateVoteDTO

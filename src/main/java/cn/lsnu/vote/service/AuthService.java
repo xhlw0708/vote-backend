@@ -7,4 +7,7 @@ public interface AuthService {
 
     // 微信登录验证
     User weChatAuth(WeChatRequestParam requestParam);
+
+    // 退出登录
+    String logout(String openid);
 }

@@ -4,12 +4,16 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.json.JSONUtil;
+import cn.lsnu.vote.common.Constants;
 import cn.lsnu.vote.common.RedisConstants;
+import cn.lsnu.vote.exception.CustomerException;
 import cn.lsnu.vote.mapper.UserMapper;
 import cn.lsnu.vote.model.domain.User;
 import cn.lsnu.vote.model.wechat.WeChatLoginUser;
 import cn.lsnu.vote.model.wechat.WeChatRequestParam;
 import cn.lsnu.vote.service.AuthService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -31,6 +35,23 @@ public class AuthServiceImpl implements AuthService {
 
 
     /**
+     * 退出登录
+     * @param openId
+     * @return 提示信息
+     */
+    @Override
+    public String logout(String openid) {
+        // 清除redis缓存
+        try {
+            redisTemplate.delete(RedisConstants.USER_KEY + openid);
+        } catch (Exception e) {
+            throw new CustomerException(Constants.ERROR_SYSTEM,"退出失败，请稍后再试");
+        }
+
+        return "退出成功";
+    }
+
+    /**
      * 微信登录授权
      * @param requestParam 登录所需参数
      * @return user 用户信息
@@ -44,15 +65,17 @@ public class AuthServiceImpl implements AuthService {
 
         if (StrUtil.isNotBlank(openid)){
             // 判断redis中是否存在user
-            String username = (String) redisTemplate.opsForHash().get(openid, "username");
+            String username = (String) redisTemplate.opsForHash()
+                    .get(RedisConstants.USER_KEY + openid, "username");
             if (openid.equals(username) && StrUtil.isNotBlank(username)){
                 // redis中有数据
-                Long id = (Long) redisTemplate.opsForHash().get(RedisConstants.USER_KEY + openid, "id");
-                user.setId(id);
+                String tmpid = redisTemplate.opsForHash().get(RedisConstants.USER_KEY + openid, "id").toString();
+                user.setId(Long.parseLong(tmpid));
                 user.setUsername(username);
                 return user;
             }
         }
+
 
         // 发送https请求
         // secret: 91933c3a22369f8f1fb6ade8fb66e160
@@ -65,6 +88,14 @@ public class AuthServiceImpl implements AuthService {
         WeChatLoginUser weChatLoginUser = JSONUtil.toBean(resJson, WeChatLoginUser.class);
         // 检查是否返回
         if (BeanUtil.isNotEmpty(weChatLoginUser) && StrUtil.isNotBlank(weChatLoginUser.getOpenid())){
+
+            // 查询数据库中是否存在用户
+            LambdaQueryWrapper<User> eq = Wrappers.lambdaQuery(User.class).eq(User::getUsername, weChatLoginUser.getOpenid());
+            User dbUser = userMapper.selectOne(eq);
+            if (BeanUtil.isNotEmpty(dbUser)){
+                return dbUser;
+            }
+
             // 授权成功
             // 将登录用户信息持久化
             user.setUsername(weChatLoginUser.getOpenid());
